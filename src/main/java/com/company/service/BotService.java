@@ -78,6 +78,7 @@ public class BotService {
                 Bot bot = new Bot();
                 bot.sendMessage(send.setText("Bunday kod mavjud! Qayta kiriting.")
                         .setChatId(update.getMessage().getChatId()));
+                addTestMenu(update);
             } else {
                 adminRepository.save(new Admin(update.getMessage().getFrom().getUserName(),
                         update.getMessage().getChatId(), code, answers));
@@ -129,6 +130,22 @@ public class BotService {
         String answers = updateText.substring(updateText.indexOf('/') + 1);
         String exampleAnswer=adminRepository.findAdminByCode(code).getAnswers();
         String fullName=update.getMessage().getFrom().getFirstName();
+
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+
+        //config button
+        keyboardMarkup.setSelective(true);
+        keyboardMarkup.setResizeKeyboard(true);
+        keyboardMarkup.setOneTimeKeyboard(true);
+
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+
+        // natijalarni ko'rish
+        KeyboardRow orqaga = new KeyboardRow();
+        orqaga.add("Asosiy menuga qaytish");
+        keyboardRows.add(orqaga);
+        keyboardMarkup.setKeyboard(keyboardRows);
+
         if(fullName!=null){
             if(update.getMessage().getFrom().getLastName()!=null){
                 fullName.concat(" ").concat(update.getMessage().getFrom().getLastName());
@@ -138,13 +155,13 @@ public class BotService {
             if(pupilRepasitory.existsByFullNameAndCodeNot(fullName,code)){
                 Bot bot=new Bot();
                 bot.sendMessage(send.setText("Siz javoblaringizni jo'natib bo'lgansiz!")
-                        .setChatId(update.getMessage().getChatId()));
+                        .setChatId(update.getMessage().getChatId()).setReplyMarkup(keyboardMarkup));
             } else {
                 Pupil pupil=new Pupil(fullName,checkTest(exampleAnswer,answers),code);
                 pupilRepasitory.save(pupil);
                 Bot bot=new Bot();
                 bot.sendMessage(send.setText("Javobingiz qabul qilindi!")
-                        .setChatId(update.getMessage().getChatId()));
+                        .setChatId(update.getMessage().getChatId()).setReplyMarkup(keyboardMarkup));
             }
         }
     }
@@ -185,5 +202,16 @@ public class BotService {
     //clean data
     public void cleanTest(Update update){
         adminRepository.deleteAdminByUserName(update.getMessage().getFrom().getUserName());
+        pupilRepasitory.deleteAllByCode(
+                adminRepository.findAdminByUserName(
+                        update.getMessage().getFrom().getUserName()).getCode());
+    }
+
+    //to home
+    public void toHome(Update update){
+        Long chatId;
+        if (update.hasCallbackQuery()) chatId=update.getCallbackQuery().getMessage().getChatId();
+        else chatId=update.getMessage().getChatId();
+        path.replace(chatId,"/start");
     }
 }

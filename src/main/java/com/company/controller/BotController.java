@@ -15,17 +15,24 @@ public class BotController {
 
         BotService service = new BotService();
 
-        if (update.getMessage().getText().equals("/start")) {
-//            service.cleanTest(update);
-            service.firstMenu(update);
-        }
-
-        if (update.getMessage().getText().equals("Yangi test yaratish")) {
-            service.addTestMenu(update);
-        }
-
-        if(update.getMessage().getText().equals("Javoblarni jo'natish")){
-            service.sendAnswerMenu(update);
+        switch (update.getMessage().getText()){
+            case "/start":{
+                service.firstMenu(update);
+                break;
+            }
+            case "Yangi test yaratish":{
+                service.addTestMenu(update);
+                break;
+            }
+            case "Javoblarni jo'natish":{
+                service.sendAnswerMenu(update);
+                break;
+            }
+            case "Asosiy menuga qaytish":{
+                service.toHome(update);
+                service.cleanTest(update);
+                service.firstMenu(update);
+            }
         }
 
         switch (service.getPath(update.getMessage().getChatId())) {
@@ -47,6 +54,7 @@ public class BotController {
                 if(update.getMessage().getText().equals("Test tekshirishni tugatish!")){
                     service.getResualt(update);
                     service.cleanTest(update);
+                    service.firstMenu(update);
                 }
                 break;
             }

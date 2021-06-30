@@ -17,6 +17,7 @@ public class BotController {
 
         switch (update.getMessage().getText()){
             case "/start":{
+                service.cleanTest(update);
                 service.firstMenu(update);
                 break;
             }
@@ -29,12 +30,12 @@ public class BotController {
                 break;
             }
             case "Asosiy menuga qaytish":{
-                service.toHome(update);
-                service.cleanTest(update);
                 service.firstMenu(update);
             }
         }
 
+
+        //path
         switch (service.getPath(update.getMessage().getChatId())) {
             case "/start/add": {
                 if (!update.getMessage().getText().equals("Yangi test yaratish")) {
